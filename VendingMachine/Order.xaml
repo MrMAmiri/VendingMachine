@@ -1,0 +1,74 @@
+﻿<Window x:Class="VendingMachine.Order"
+        x:Name="OrderWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:fa="http://schemas.fontawesome.io/icons/"
+        xmlns:local="clr-namespace:VendingMachine"
+        mc:Ignorable="d"
+       Title="Order" Height="700" Width="900" ResizeMode="CanMinimize">
+
+    <Grid Margin="0,0,-0.4,-0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="104"></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <Border Background="Transparent" BorderBrush="Black" BorderThickness="0,0,0,1" Height="Auto">
+            <local:Header   Grid.Row="0" />
+        </Border>
+        <StackPanel Orientation="Vertical" Grid.Row="1" Margin="12.4,0,0,5" DataContext="{Binding BeverageModel}" >
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3*"></ColumnDefinition>
+                    <ColumnDefinition Width="1*"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Label Content="Please wait while your order is being prepared..." Foreground="Black" FontSize="30px" Margin="0,10,0,20"></Label>
+
+                <Button 
+                    Style="{StaticResource BackButton}"
+                    Command="{Binding DataContext.BackButtonCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                    CommandParameter="{Binding ElementName=OrderWindow}" IsEnabled="{Binding DataContext.CanBack, RelativeSource={RelativeSource AncestorType=Window}}" Grid.Column="1" Background="Transparent" Margin="0" Padding="0" BorderThickness="0" Cursor="Hand" >
+
+                </Button>
+
+
+
+            </Grid>
+            <Grid Margin="0,50,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Image Source="{Binding BeverageImage}"></Image>
+                <StackPanel Margin="50,0,0,0"  Grid.Column="1" Orientation="Vertical" >
+                    <Label FontSize="22" FontWeight="Bold" Content="{Binding BeverageName}"></Label>
+                    <ItemsControl ItemsSource="{Binding Materials}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <!--<Image Source="{Binding Image}" Height="28"/>-->
+                                    <fa:ImageAwesome Foreground="Gray" Icon="{Binding Image}" Height="15" Spin="{Binding ImgSpin}" SpinDuration="4" Margin="0,5,10,0" />
+                                    <Label Content="{Binding MatName}" Foreground="Gray"></Label>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Vertical"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+                    <Button Height="80" Margin="0,20,100,0" Cursor="Hand"
+                            IsEnabled="{Binding DataContext.CanCancelOrder, RelativeSource={RelativeSource AncestorType=Window}}"
+                            Style="{Binding DataContext.ButtonStyle, RelativeSource={RelativeSource AncestorType=Window}}"
+                            Command="{Binding DataContext.CancelButtonCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                            CommandParameter="{Binding ElementName=OrderWindow}"
+                            >
+                    </Button>
+                </StackPanel>
+
+            </Grid>
+        </StackPanel>
+    </Grid>
+</Window>

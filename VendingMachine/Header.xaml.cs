@@ -1,0 +1,35 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+using VendingMachine.ViewModels;
+
+namespace VendingMachine
+{
+    /// <summary>
+    /// Interaction logic for Header.xaml
+    /// </summary>
+    public partial class Header : UserControl
+    {
+        public Header()
+        {
+            InitializeComponent();
+
+            var userVModel = new UserViewModel();
+            Random rnd = new Random();
+            userVModel.LoggedInUser = userVModel.Users.FirstOrDefault(s=> s.UserId==2);
+
+            this.DataContext = userVModel;
+        }
+    }
+}
