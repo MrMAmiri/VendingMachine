@@ -8,30 +8,41 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using VendingMachine.Helper;
+using VendingMachine.Interfaces;
 using VendingMachine.Models;
-
+using Unity;
 namespace VendingMachine.ViewModels
 {
-    public sealed class OrderViewModel : INotifyPropertyChanged
+    public sealed class OrderViewModel : NotifiyPropertyChanged, IOrderView,ICloseable
     {
-        #region INotifyPropertyChanged Members  
+        public event EventHandler<EventArgs> RequestClose;
+        public IBeverageModel BeverageModel { get; set; }
+        public RelayCommand BackButtonCommand { get; set; }
+        public RelayCommand<IOrderView> CancelButtonCommand { get; set; }
+        public BackgroundWorker worker { get; set; }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        private void OnPropertyChanged(string propertyName)
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
-
-        #endregion
-        public BeverageModel BeverageModel { get; set; }
-
-        private readonly BackgroundWorker worker = new BackgroundWorker();
         private Boolean _canCancel;
         private Boolean _canBack;
         private Style _buttonStyle;
+
+        public OrderViewModel(IBeverageModel model)
+        {
+            CanCancelOrder = true;
+            CanBack = false;
+            ButtonStyle = (Style)Application.Current.FindResource("CnlButton");
+            BeverageModel = model;
+            BeverageModel.ResetMaterials();
+
+            worker = new BackgroundWorker();
+            worker.WorkerSupportsCancellation = true;
+            worker.DoWork += worker_DoWork;
+            worker.RunWorkerCompleted += worker_RunWorkerCompleted;
+            worker.RunWorkerAsync();
+
+            CancelButtonCommand = new RelayCommand<IOrderView>(CancelClick);
+            BackButtonCommand = new RelayCommand(BackClick);
+        }
 
         public bool OrderCanceled { get; set; } = false;
 
@@ -40,8 +51,7 @@ namespace VendingMachine.ViewModels
             get { return _canCancel; }
             set
             {
-                _canCancel = value;
-                OnPropertyChanged("CanCancelOrder");
+                SetProperty(ref _canCancel, value);
             }
         }
 
@@ -50,8 +60,7 @@ namespace VendingMachine.ViewModels
             get { return _canBack; }
             set
             {
-                _canBack = value;
-                OnPropertyChanged("CanBack");
+                SetProperty(ref _canBack, value);
             }
         }
 
@@ -60,27 +69,10 @@ namespace VendingMachine.ViewModels
             get { return _buttonStyle; }
             set
             {
-                _buttonStyle = value;
-                OnPropertyChanged("ButtonStyle");
+                SetProperty(ref _buttonStyle, value);
             }
         }
 
-
-        public OrderViewModel(BeverageModel model)
-        {
-            CanCancelOrder = true;
-            CanBack = false;
-
-            ButtonStyle = (Style)Application.Current.FindResource("CnlButton");
-
-            BeverageModel = model;
-            BeverageModel.ResetMaterials();
-
-            worker.WorkerSupportsCancellation = true;
-            worker.DoWork += worker_DoWork;
-            worker.RunWorkerCompleted += worker_RunWorkerCompleted;
-            worker.RunWorkerAsync();
-        }
         private void worker_DoWork(object sender, DoWorkEventArgs e)
         {
             foreach (var item in BeverageModel.Materials)
@@ -109,94 +101,21 @@ namespace VendingMachine.ViewModels
 
         }
 
-
-
-        private ICommand mBackButton;
-        public ICommand BackButtonCommand
+        private void CancelClick(IOrderView model)
         {
-            get
-            {
-                if (mBackButton == null)
-                    mBackButton = new BackButton();
-                return mBackButton;
-            }
-            set
-            {
-                mBackButton = value;
-            }
+            model.worker.CancelAsync();
+            model.worker.Dispose();
+            model.CanBack = true;
+            model.CanCancelOrder = false;
+            model.OrderCanceled = true;
+            model.ButtonStyle = (Style)Application.Current.FindResource("AbrButton");
         }
 
-        private class BackButton : ICommand
+        public void BackClick()
         {
-            #region ICommand Members  
-
-            public bool CanExecute(object parameter)
-            {
-                return true;
-            }
-
-            public event EventHandler CanExecuteChanged;
-
-            public void Execute(object parameter)
-            {
-                MainWindow mainWindow = new MainWindow();
-                mainWindow.Show();
-
-                ((Window)parameter).Close();
-
-            }
-
-            #endregion
-        }
-
-
-
-
-
-        private ICommand mCancelButtonCommand;
-        public ICommand CancelButtonCommand
-        {
-            get
-            {
-                if (mCancelButtonCommand == null)
-                    mCancelButtonCommand = new CancelButton(this);
-                return mCancelButtonCommand;
-            }
-            set
-            {
-                mCancelButtonCommand = value;
-            }
-        }
-
-        private class CancelButton : ICommand
-        {
-            #region ICommand Members  
-
-            OrderViewModel VModel;
-
-            public CancelButton(OrderViewModel model)
-            {
-                VModel = model;
-            }
-
-            public bool CanExecute(object parameter)
-            {
-                return true;
-            }
-
-            public event EventHandler CanExecuteChanged;
-
-            public void Execute(object parameter)
-            {
-                VModel.worker.CancelAsync();
-                VModel.worker.Dispose();
-                VModel.CanBack = true;
-                VModel.CanCancelOrder = false;
-                VModel.OrderCanceled = true;
-                VModel.ButtonStyle = (Style)Application.Current.FindResource("AbrButton");
-            }
-
-            #endregion
+            MainWindow mainWindow = Helper.ContainerHelper.Container.Resolve<MainWindow>();
+            mainWindow.Show();
+            RequestClose(null, EventArgs.Empty);
         }
 
 

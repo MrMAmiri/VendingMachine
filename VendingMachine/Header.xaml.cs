@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using VendingMachine.ViewModels;
-
+using Unity;
 namespace VendingMachine
 {
     /// <summary>
@@ -24,12 +24,8 @@ namespace VendingMachine
         public Header()
         {
             InitializeComponent();
-
-            var userVModel = new UserViewModel();
-            Random rnd = new Random();
-            userVModel.LoggedInUser = userVModel.Users.FirstOrDefault(s=> s.UserId==2);
-
-            this.DataContext = userVModel;
+            var userVModel = Helper.ContainerHelper.Container.Resolve<UserViewModel>();
+            DataContext = userVModel;
         }
     }
 }

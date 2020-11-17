@@ -4,73 +4,54 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VendingMachine.Helper;
+using VendingMachine.Interfaces;
 
 namespace VendingMachine.Models
 {
-    public class BeverageModel: INotifyPropertyChanged
+    public class BeverageModel:NotifiyPropertyChanged, IBeverageModel
     {
-        #region INotifyPropertyChanged Members  
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        private void OnPropertyChanged(string propertyName)
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
-
-        #endregion
-
         int _beverageId;
         string _beverageName;
         string _beverageImage;
-        IList<IngredientModel> _materials;
-
+        IList<IIngredientModel> _materials;
         public int BeverageId
         {
             get { return _beverageId; }
             set
             {
-                _beverageId = value;
-                OnPropertyChanged("BeverageId");
+                SetProperty(ref _beverageId, value);
             }
         }
-
         public string BeverageName
         {
             get { return _beverageName; }
             set
             {
-                _beverageName = value;
-                OnPropertyChanged("BeverageName");
+                SetProperty(ref _beverageName, value);
             }
         }
-
         public string BeverageImage
         {
             get { return _beverageImage; }
             set
             {
-                _beverageImage = value;
-                OnPropertyChanged("BeverageImage");
+                SetProperty(ref _beverageImage, value);
             }
         }
-
-        public IList<IngredientModel> Materials
+        public IList<IIngredientModel> Materials
         {
             get { return _materials; }
             set
             {
-                _materials = value;
-                OnPropertyChanged("Materials");
+                SetProperty(ref _materials, value);
             }
         }
-
         public void ResetMaterials()
         {
             foreach (var item in Materials)
                 item.Status = ReadyStatus.None;
         }
+
     }
 }

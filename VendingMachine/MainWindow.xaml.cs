@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using VendingMachine.Interfaces;
 using VendingMachine.ViewModels;
 
 namespace VendingMachine
@@ -21,13 +22,19 @@ namespace VendingMachine
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MainWindow()
+        public MainWindow(IBeverageViewModel viewModel)
         {
+            
             InitializeComponent();
+            DataContext = viewModel;
+            Loaded += (s, e) =>
+            {
+                if (DataContext is ICloseable)
+                {
+                    (DataContext as ICloseable).RequestClose += (_, __) => this.Close();
+                }
+            };
 
-            var bevVM = new BeverageViewModel();
-            bevVM.Holder = this;
-            this.DataContext = bevVM;
         }
     }
 }

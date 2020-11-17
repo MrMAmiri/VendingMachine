@@ -5,88 +5,89 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using VendingMachine.Helper;
+using VendingMachine.Interfaces;
 using VendingMachine.Models;
+using Unity;
+using Unity.Resolution;
 
 namespace VendingMachine.ViewModels
 {
-    public sealed class BeverageViewModel
+    public sealed class BeverageViewModel : NotifiyPropertyChanged, IBeverageViewModel, ICloseable
     {
-        public Window Holder { get; set; }
-        public IList<BeverageModel> Beverages { get; }
 
+        public event EventHandler<EventArgs> RequestClose;
+        public IList<IBeverageModel> Beverages { get; }
+        public RelayCommand<IBeverageModel> BeverageSelectCommand { get; set; }
         public BeverageViewModel()
         {
-            var ingVM = new IngredientViewModel();
+            var ingVM = ContainerHelper.Container.Resolve<IngredientViewModel>();
 
-            Beverages = new List<BeverageModel>
+            Beverages = new List<IBeverageModel>
             {
-                new BeverageModel(){BeverageId=1,BeverageName="Hot Chocolate",
-                                    BeverageImage ="assets/hot_chocolate.jpg",
-                                    Materials=ingVM.Ingredients.Where(d=> (new[]{1,2,3}).Contains(d.MatId)).ToList()
+                new BeverageModel()
+                {
+                    BeverageId =1,
+                    BeverageName ="Hot Chocolate",
+                    BeverageImage ="assets/hot_chocolate.jpg",
+                    Materials=ingVM.Ingredients.Where
+                    (
+                        d=> (new[]{1,2,3}).Contains(d.MatId)
+                    ).ToList()
                 },
-                new BeverageModel(){BeverageId=2,BeverageName="Coffee",
-                                    BeverageImage ="assets/white_coffee.jpg",
-                                     Materials=ingVM.Ingredients.Where(d=> (new[]{1,4,5,3,6}).Contains(d.MatId)).ToList()
+                new BeverageModel()
+                {
+                    BeverageId =2,
+                    BeverageName ="Coffee",
+                    BeverageImage ="assets/white_coffee.jpg",
+                    Materials=ingVM.Ingredients.Where
+                    (
+                        d=> (new[]{1,4,5,3,6}).Contains(d.MatId)
+                    ).ToList()
                 },
-                new BeverageModel(){BeverageId=3,BeverageName="Iced Coffee",
-                                    BeverageImage ="assets/iced_coffee.jpg",
-                                     Materials=ingVM.Ingredients.Where(d=> (new[]{1,3,7,8}).Contains(d.MatId)).ToList()
+                new BeverageModel()
+                {
+                    BeverageId =3,
+                    BeverageName ="Iced Coffee",
+                    BeverageImage ="assets/iced_coffee.jpg",
+                    Materials=ingVM.Ingredients.Where
+                    (
+                        d=> (new[]{1,3,7,8}).Contains(d.MatId)
+                    ).ToList()
                 },
-                new BeverageModel(){BeverageId=4,BeverageName="Lemon Tea",
-                                    BeverageImage ="assets/lemon_tea.jpg",
-                                     Materials=ingVM.Ingredients.Where(d=> (new[]{9,10,11,12,13}).Contains(d.MatId)).ToList()
+                new BeverageModel()
+                {
+                    BeverageId =4,
+                    BeverageName ="Lemon Tea",
+                    BeverageImage ="assets/lemon_tea.jpg",
+                    Materials=ingVM.Ingredients.Where
+                    (
+                        d=> (new[]{9,10,11,12,13}).Contains(d.MatId)
+                    ).ToList()
                 }
 
             };
+
+            BeverageSelectCommand = new RelayCommand<IBeverageModel>(BeverageSelected);
         }
-
-
-
-
-        private ICommand mBeverageSelect;
-        public ICommand BeverageSelectCommand
+        public void BeverageSelected(IBeverageModel bvModel)
         {
-            get
-            {
-                if (mBeverageSelect == null)
-                    mBeverageSelect = new BeverageSelect(Holder);
-                return mBeverageSelect;
-            }
-            set
-            {
-                mBeverageSelect = value;
-            }
+
+            var orderViewModel = ContainerHelper.Container.Resolve<OrderViewModel>(new ResolverOverride[]
+                               {
+                                       new ParameterOverride("model", bvModel)
+                               });
+
+            Order order = ContainerHelper.Container.Resolve<Order>(new ResolverOverride[]
+                               {
+                                       new ParameterOverride("viewModel", orderViewModel)
+                               });
+            order.Show();
+
+            RequestClose(this, EventArgs.Empty);
+
+
         }
-
-        private class BeverageSelect : ICommand
-        {
-            #region ICommand Members  
-
-            Window holdr;
-
-            public BeverageSelect(Window hold)
-            {
-                holdr = hold;
-            }
-            public bool CanExecute(object parameter)
-            {
-                return true;
-            }
-
-            public event EventHandler CanExecuteChanged;
-
-            public void Execute(object parameter)
-            {
-                Order order = new Order();
-                order.DataContext = new OrderViewModel((BeverageModel)parameter);
-                order.Show();
-                holdr.Close();
-            }
-
-            #endregion
-        }
-
-
 
 
     }

@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using VendingMachine.Interfaces;
 using VendingMachine.Models;
 using VendingMachine.ViewModels;
 
@@ -21,9 +22,17 @@ namespace VendingMachine
     /// </summary>
     public partial class Order : Window
     {
-        public Order()
+        public Order(IOrderView viewModel)
         {
             InitializeComponent();
+            DataContext = viewModel;
+            Loaded += (s, e) =>
+            {
+                if (DataContext is ICloseable)
+                {
+                    (DataContext as ICloseable).RequestClose += (_, __) => this.Close();
+                }
+            };
         }
 
 

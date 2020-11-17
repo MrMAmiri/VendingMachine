@@ -7,23 +7,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Threading;
+using VendingMachine.Helper;
+using VendingMachine.Interfaces;
 
 namespace VendingMachine.Models
 {
-    public sealed class IngredientModel: INotifyPropertyChanged
+    public sealed class IngredientModel: NotifiyPropertyChanged, IIngredientModel
     {
-        #region INotifyPropertyChanged Members  
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        private void OnPropertyChanged(string propertyName)
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
-
-        #endregion
 
         public IngredientModel()
         {
@@ -45,8 +35,7 @@ namespace VendingMachine.Models
             get { return _matId; }
             set
             {
-                _matId = value;
-                OnPropertyChanged("MatId");
+                SetProperty(ref _matId, value);
             }
         }
 
@@ -55,8 +44,7 @@ namespace VendingMachine.Models
             get { return _matName; }
             set
             {
-                _matName = value;
-                OnPropertyChanged("MatName");
+                SetProperty(ref _matName, value);
             }
         }
 
@@ -68,8 +56,7 @@ namespace VendingMachine.Models
             get { return _timeToReady; }
             set
             {
-                _timeToReady = value;
-                OnPropertyChanged("TimeToReady");
+                SetProperty(ref _timeToReady, value);
             }
         }
 
@@ -78,8 +65,7 @@ namespace VendingMachine.Models
             get { return _image; }
             set
             {
-                _image = value;
-                OnPropertyChanged("Image");
+                SetProperty(ref _image, value);
             }
         }
 
@@ -88,7 +74,7 @@ namespace VendingMachine.Models
             get { return _status; }
             set
             {
-                _status = value;
+              
                 switch (_status)
                 {
                     case ReadyStatus.None:
@@ -108,7 +94,7 @@ namespace VendingMachine.Models
                         break;
                 }
 
-                OnPropertyChanged("Status");
+                SetProperty(ref _status, value);
             }
         }
 
@@ -117,8 +103,7 @@ namespace VendingMachine.Models
             get { return _imgSpin; }
             set
             {
-                _imgSpin = value;
-                OnPropertyChanged("ImgSpin");
+                SetProperty(ref _imgSpin, value);
             }
         }
 

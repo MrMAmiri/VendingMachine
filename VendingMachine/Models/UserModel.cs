@@ -4,35 +4,38 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VendingMachine.Helper;
+using VendingMachine.Interfaces;
 
 namespace VendingMachine.Models
 {
-    public sealed class UserModel : AppModel, INotifyPropertyChanged
+    public sealed class UserModel : NotifiyPropertyChanged, IUserModel, IAppModel
     {
-        #region INotifyPropertyChanged Members  
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        private void OnPropertyChanged(string propertyName)
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
-
-        #endregion
 
         int _userId;
         string _userName;
         string _userAvatar;
+        string _appTitle;
+
+        public UserModel()
+        {
+            AppTitle = "E-Corp Vending Machine";
+        }
+        public string AppTitle
+        {
+            get { return _appTitle; }
+            set
+            {
+                SetProperty(ref _appTitle, value);
+            }
+        }
 
         public int UserId
         {
             get { return _userId; }
             set
             {
-                _userId = value;
-                OnPropertyChanged("UserId");
+                SetProperty(ref _userId, value);
             }
         }
 
@@ -41,8 +44,7 @@ namespace VendingMachine.Models
             get { return _userName; }
             set
             {
-                _userName = value;
-                OnPropertyChanged("UserName");
+                SetProperty(ref _userName, value);
             }
         }
 
@@ -51,8 +53,7 @@ namespace VendingMachine.Models
             get { return _userAvatar; }
             set
             {
-                _userAvatar = value;
-                OnPropertyChanged("UserAvatar");
+                SetProperty(ref _userAvatar, value);
             }
         }
     }

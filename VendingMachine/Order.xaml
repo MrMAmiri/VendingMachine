@@ -63,7 +63,7 @@
                             IsEnabled="{Binding DataContext.CanCancelOrder, RelativeSource={RelativeSource AncestorType=Window}}"
                             Style="{Binding DataContext.ButtonStyle, RelativeSource={RelativeSource AncestorType=Window}}"
                             Command="{Binding DataContext.CancelButtonCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                            CommandParameter="{Binding ElementName=OrderWindow}"
+                            CommandParameter="{Binding DataContext, RelativeSource={RelativeSource AncestorType=Window}}"
                             >
                     </Button>
                 </StackPanel>
